@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { HistoryItem } from '@/lib/types';
 import {
   Accordion,
@@ -9,7 +10,7 @@ import {
 } from '@/components/ui/accordion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { History, Trash2 } from 'lucide-react';
+import { History, Trash2, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 
 interface HistoryPanelProps {
@@ -19,6 +20,12 @@ interface HistoryPanelProps {
 }
 
 export function HistoryPanel({ history, onClearHistory, onSelectHistoryItem }: HistoryPanelProps) {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return (
     <Card className="h-full flex flex-col shadow-lg">
       <CardHeader className="border-b">
@@ -27,7 +34,7 @@ export function HistoryPanel({ history, onClearHistory, onSelectHistoryItem }: H
             <History className="h-5 w-5" />
             Scan History
           </CardTitle>
-          {history.length > 0 && (
+          {isClient && history.length > 0 && (
             <Button variant="ghost" size="icon" onClick={onClearHistory} aria-label="Clear history" className="h-8 w-8">
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -36,7 +43,12 @@ export function HistoryPanel({ history, onClearHistory, onSelectHistoryItem }: H
         <CardDescription>Your previously identified organisms.</CardDescription>
       </CardHeader>
       <CardContent className="p-2 md:p-4 flex-grow overflow-y-auto min-h-[300px]">
-        {history.length === 0 ? (
+        {!isClient ? (
+          <div className="text-center text-muted-foreground h-full flex flex-col justify-center items-center p-4">
+             <Loader2 className="h-12 w-12 animate-spin text-muted-foreground/50 mb-4" />
+            <p className="font-semibold">Loading History...</p>
+          </div>
+        ) : history.length === 0 ? (
           <div className="text-center text-muted-foreground h-full flex flex-col justify-center items-center p-4">
             <History className="h-12 w-12 mb-4 text-muted-foreground/50" />
             <p className="font-semibold">No history yet</p>
