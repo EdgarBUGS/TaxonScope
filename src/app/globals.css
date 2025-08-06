@@ -4,7 +4,26 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  position: relative;
+  z-index: 1;
 }
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('https://scontent.fmnl25-3.fna.fbcdn.net/v/t1.6435-9/116434441_889085791582368_8821061930943047908_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=qKCvS7LFYB8Q7kNvwFJsFWx&_nc_oc=Adn3f_0sZam1ZOfyAE9pky6BmiHv_gtsyw0meRdEyEfOAprnZbmszge6Iw1WOgLN17c&_nc_zt=23&_nc_ht=scontent.fmnl25-3.fna&_nc_gid=DRb8oePgZmAc1nFiNsRg5A&oh=00_AfUq7J15XX13WExLBqN6KoAPmFrKMIUYS_EWfhbQMVwdAQ&oe=68BA3869');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.05;
+  z-index: -1;
+  background-color: hsl(var(--background));
+}
+
 
 @layer base {
   :root {
