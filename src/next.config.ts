@@ -1,0 +1,34 @@
+import type {NextConfig} from 'next';
+
+const nextConfig: NextConfig = {
+  /* config options here */
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'scontent.fmnl25-3.fna.fbcdn.net',
+        port: '',
+        pathname: '/**',
+      }
+    ],
+  },
+  devServer: {
+    allowedDevOrigins: [
+      "https://*.cloudworkstations.dev",
+    ]
+  }
+};
+
+export default nextConfig;
