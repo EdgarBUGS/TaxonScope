@@ -9,9 +9,11 @@ import { useToast } from '@/hooks/use-toast';
 
 interface CameraViewProps {
   onCapture: (imageDataUrl: string) => void;
+  attemptsLeft?: number;
+  maxAttempts?: number;
 }
 
-export function CameraView({ onCapture }: CameraViewProps) {
+export function CameraView({ onCapture, attemptsLeft, maxAttempts = 3 }: CameraViewProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -124,15 +126,20 @@ export function CameraView({ onCapture }: CameraViewProps) {
             </div>
         )}
       </CardContent>
-      <CardFooter className="p-4 bg-muted/50 border-t grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Button onClick={handleCapture} disabled={!hasCameraPermission} className="w-full">
+      <CardFooter className="p-4 bg-muted/50 border-t grid grid-cols-1 gap-3">
+        <div className="text-xs text-muted-foreground">
+          Only {maxAttempts} identifications are allowed per day. Attempts left: {typeof attemptsLeft === 'number' ? Math.max(0, attemptsLeft) : '—'}.
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Button onClick={handleCapture} disabled={!hasCameraPermission || (typeof attemptsLeft === 'number' && attemptsLeft <= 0)} className="w-full">
           <Camera className="mr-2 h-5 w-5" />
           Capture Organism
         </Button>
-        <Button onClick={handleUploadClick} variant="secondary" className="w-full">
+        <Button onClick={handleUploadClick} variant="secondary" className="w-full" disabled={(typeof attemptsLeft === 'number' && attemptsLeft <= 0)}>
           <Upload className="mr-2 h-5 w-5" />
           Upload Image
         </Button>
+        </div>
       </CardFooter>
     </Card>
   );

@@ -21,6 +21,33 @@ export default function Home() {
   const { toast } = useToast();
 
   const handleCapture = async (photoDataUri: string) => {
+    // Client-side guard: limit to 3 per 24h using localStorage timestamped counts
+    try {
+      const lsKey = 'ts_caps_meta';
+      const windowMs = 24 * 60 * 60 * 1000;
+      const now = Date.now();
+      const metaRaw = typeof window !== 'undefined' ? window.localStorage.getItem(lsKey) : null;
+      let timestamps: number[] = [];
+      if (metaRaw) {
+        try { timestamps = JSON.parse(metaRaw) as number[]; } catch {}
+      }
+      // keep only within window
+      timestamps = timestamps.filter(t => now - t < windowMs);
+      if (timestamps.length >= 3) {
+        toast({
+          variant: 'destructive',
+          title: 'Daily limit reached',
+          description: 'You can make up to 3 identifications per day.',
+        });
+        return;
+      }
+      // tentatively record attempt (final authority is server)
+      const updated = [...timestamps, now];
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(lsKey, JSON.stringify(updated));
+      }
+    } catch {}
+
     setViewState('loading');
     try {
       const resultData = await identifyAndSummarizeOrganism({ photoDataUri });
@@ -78,10 +105,10 @@ export default function Home() {
         }
         // Fallback to camera if no active result
         setViewState('camera');
-        return <CameraView onCapture={handleCapture} />;
+        return <CameraView onCapture={handleCapture} attemptsLeft={getAttemptsLeft()} />;
       case 'camera':
       default:
-        return <CameraView onCapture={handleCapture} />;
+        return <CameraView onCapture={handleCapture} attemptsLeft={getAttemptsLeft()} />;
     }
   };
 
@@ -102,4 +129,21 @@ export default function Home() {
       </main>
     </div>
   );
+}
+
+function getAttemptsLeft(): number {
+  try {
+    const lsKey = 'ts_caps_meta';
+    const windowMs = 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    const metaRaw = typeof window !== 'undefined' ? window.localStorage.getItem(lsKey) : null;
+    let timestamps: number[] = [];
+    if (metaRaw) {
+      try { timestamps = JSON.parse(metaRaw) as number[]; } catch {}
+    }
+    const recent = timestamps.filter(t => now - t < windowMs);
+    return Math.max(0, 3 - recent.length);
+  } catch {
+    return 3;
+  }
 }
